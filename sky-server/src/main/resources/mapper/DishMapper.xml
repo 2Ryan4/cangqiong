@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sky.mapper.DishMapper">
+
+    <insert id="insert" useGeneratedKeys = "true" keyProperty = "id">
+        INSERT INTO dish (name, category_id, price, image, description, create_time, update_time, create_user, update_user, status)
+        VALUES (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser}, #{status});
+    </insert>
+
+    <update id="update">
+        UPDATE dish
+        <set>
+            <if test = "name != null">
+                AND d.name LIKE concat('%', #{name}, '%')
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteByIds">
+        DELETE FROM dish WHERE id IN
+        <foreach collection = "ids" item = "id" separator = "," open = "(" close = ")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
+        SELECT d.*, c.name AS categoryName
+        FROM dish d
+        LEFT JOIN category c ON d.catory_id = c.id
+        <where>
+            <if test = "name != null">
+                AND d.name LIKE concat('%', #{name}, '%')
+            </if>
+            <if test = "categoryId != null">
+                AND d.categoryId = #{categoryId}
+            </if>
+            <if test = "status != null">
+                AND d.status = #{status}
+            </if>
+        </where>
+        ORDER BY d.create_time DESC
+    </select>
+
+
+    <select id="getById" resultType="com.sky.entity.Dish">
+        SELECT * FROM dish WHERE id = #{id}
+    </select>
+
+
+</mapper>
